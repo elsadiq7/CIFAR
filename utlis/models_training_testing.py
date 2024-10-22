@@ -1,13 +1,18 @@
 # importing
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense, InputLayer, RandomFlip
+from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense, InputLayer, RandomFlip, Dropout, \
+    BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras import Sequential
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import SGD,Adam
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 import gc
 from sklearn.metrics import accuracy_score, f1_score
 from tensorflow.keras import backend as K
+from tensorflow.keras.applications import MobileNetV2,VGG16
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+
 from utlis.load_patchs import extract_labels
 import numpy as np
 def custom_f1_score(y_true, y_pred):
@@ -35,7 +40,7 @@ def custom_f1_score(y_true, y_pred):
     f1 = 2 * precision * recall / (precision + recall + K.epsilon())
     return K.mean(f1)
 
-def train_and_evaluate_models(models_list, train_dataset, validation_dataset, epochs, batch_size, final_model):
+def train_and_evaluate_models(models_list, train_dataset, validation_dataset, epochs, batch_size, final_model,l_r=.001,mome=.9):
     """
     Trains a list of models and evaluates their validation accuracy.
 
@@ -59,8 +64,8 @@ def train_and_evaluate_models(models_list, train_dataset, validation_dataset, ep
         print(f"Training model {i + 1}/{length}...")
 
         # Compile the model
-        model.compile(optimizer=Adam(learning_rate=0.01),
-                      loss=SparseCategoricalCrossentropy(from_logits=True),
+        model.compile(SGD(learning_rate=l_r, momentum=mome),
+                      loss=SparseCategoricalCrossentropy(),
                       metrics=["accuracy"])
 
         # Train the model
@@ -81,7 +86,6 @@ def train_and_evaluate_models(models_list, train_dataset, validation_dataset, ep
             del model
             gc.collect()
         else:
-
             # Return the best model if final_model is True
             return model, history
 
@@ -102,164 +106,64 @@ def predict(prediction_model, test_dataset):
     return model_acc, model_f1
 
 
-def model_1(image_shape, class_len=10):
-    garabage_clf = Sequential([
-        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-        Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-        MaxPool2D(pool_size=(2, 2)),
-        Conv2D(filters=8, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-        MaxPool2D(pool_size=(2, 2)),
-        Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-        MaxPool2D(pool_size=(2, 2)),
-        Flatten(),
-        Dense(units=128, activation="relu"),
-        Dense(units=class_len, activation="linear")
-    ])
-
-    return garabage_clf
-
-
 def model_2(image_shape, class_len=10):
-    garabage_clf = Sequential([
+    base_model = MobileNetV2(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
+    base_model.trainable=False
+
+    clf = Sequential([
         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-        Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-        MaxPool2D(pool_size=(2, 2)),
-        Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-        MaxPool2D(pool_size=(2, 2)),
-        Flatten(),
-        Dense(units=128, activation="relu"),
-        Dense(units=class_len, activation="linear")
+        base_model,
+        GlobalAveragePooling2D(),
+        Dense(512, activation='relu'),
+        Dense(class_len, activation='softmax')
     ])
 
-    return garabage_clf
+    return clf
+
+def model_3(image_shape, class_len=10):
+    base_model = VGG16(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
+    base_model.trainable=False
+
+    clf = Sequential([
+        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
+        base_model,
+        GlobalAveragePooling2D(),
+        Dense(class_len, activation='softmax')
+    ])
+
+    return clf
 
 
-# def model_3(image_shape, class_len=10):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=8, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Flatten(),
-#         Dense(units=256, activation="relu"),
-#         Dense(units=class_len, activation="linear")
-#     ])
-#
-#     return garabage_clf
 
 
-# def build_model_4(image_shape, classes_names):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.01)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=8, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.01)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.01)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.01)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Flatten(),
-#         Dense(units=32, activation="relu", kernel_regularizer=regularizers.l1_l2(l1=0.01, l2=0.01)),
-#         Dense(units=len(classes_names), activation="linear")
-#     ])
-#
-#     return garabage_clf
-#
-#
-# def build_model_5(image_shape, classes_names):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         Conv2D(filters=4, kernel_size=(2, 2), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.0001)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=8, kernel_size=(2, 2), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(2, 2), strides=(1, 1), padding='valid', activation="relu",
-#                kernel_regularizer=regularizers.l1_l2(l1=0.0001)),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(2, 2), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Flatten(),
-#         Dense(units=len(classes_names), activation="linear")
-#     ])
-#
-#     return garabage_clf
-#
-#
-# def build_model_6(image_shape, classes_names):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=8, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=128, kernel_size=(3, 3), strides=(1, 1), padding='valid', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Flatten(),
-#         Dense(units=512, activation="relu"),
-#         Dense(units=len(classes_names), activation="linear")
-#     ])
-#
-#     return garabage_clf
-#
-#
-# def build_model_7(image_shape, classes_names):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         # RandomFlip("horizontal_and_vertical"),
-#         # RandomRotation(0.4),
-#         Conv2D(filters=4, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#
-#         Conv2D(filters=8, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#
-#         Conv2D(filters=16, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#
-#         Conv2D(filters=32, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#
-#         Conv2D(filters=64, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#
-#         Flatten(),
-#
-#         Dense(units=len(classes_names), activation="linear")
-#     ])
-#
-#     return garabage_clf
-#
-#
-# def build_model_8(image_shape, classes_names):
-#     garabage_clf = Sequential([
-#         InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-#         RandomFlip("horizontal_and_vertical"),
-#         Conv2D(filters=4, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=8, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Conv2D(filters=16, kernel_size=(2, 2), strides=(1, 1), padding='same', activation="relu"),
-#         MaxPool2D(pool_size=(2, 2)),
-#         Flatten(),
-#
-#         Dense(units=len(classes_names), activation="linear")
-#     ])
-#
-#     return garabage_clf
+def model_1():
+    model = Sequential()
+    model.add(
+        Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
+    model.add(BatchNormalization())
+    model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPool2D((2, 2)))
+    model.add(Dropout(0.2))
+    model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPool2D((2, 2)))
+    model.add(Dropout(0.3))
+    model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPool2D((2, 2)))
+    model.add(Dropout(0.4))
+    model.add(Flatten())
+    model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.5))
+    model.add(Dense(10, activation='softmax'))
+
+    return model
+
+
+

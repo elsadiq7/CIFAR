@@ -3,9 +3,6 @@ from PIL import Image
 import numpy as np
 from tensorflow.keras import backend as K
 
-
-
-
 classes = {0: 'airplane',
            1: 'automobile',
            2: 'bird',
@@ -95,8 +92,8 @@ def read_image_labels(path, patch_size, image_shape):
 # Function to extract labels from dataset
 def extract_labels(dataset):
     labels = []
-    images=[]
+    images = []
     for batch_images, batch_labels in dataset:
         images.extend(batch_images.numpy())
         labels.extend(batch_labels.numpy())
-    return np.array(images),np.array(labels)
+    return np.array(images), np.array(labels)

@@ -60,6 +60,8 @@ def show_images(images_patch, labels):
     plt.show()
 
 
+import numpy as np
+import matplotlib.pyplot as plt
 
 def plot_accuracy(epoch, history, string="Validation"):
     """
@@ -75,34 +77,39 @@ def plot_accuracy(epoch, history, string="Validation"):
     """
 
     # Generate an array of epoch numbers (e.g., [1, 2, ..., epoch])
-    epoch = np.arange(1, epoch + 1)
+    epochs = np.arange(1, epoch + 1)
 
     # Extract the accuracy and loss data from the history object
     train_accuracy = history.history['accuracy']          # Training accuracy
-    val_accuracy = history.history['val_accuracy']        # Validation accuracy
+    val_accuracy = history.history.get('val_accuracy')    # Validation accuracy (use .get() in case there's no validation)
     train_loss = history.history['loss']                  # Training loss
-    val_loss = history.history['val_loss']                # Validation loss (fixed any typo if present)
+    val_loss = history.history.get('val_loss')            # Validation loss (use .get() for safety)
 
     # Create a figure with two subplots (1 row, 2 columns)
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 
     # Accuracy Plot
-    ax[0].plot(epoch, train_accuracy, label="Train Accuracy", color="b", linestyle="--", linewidth=2, marker='o', alpha=0.7)
-    ax[0].plot(epoch, val_accuracy, label=f"{string} Accuracy", color="g", linestyle=":", linewidth=2, marker='s', alpha=0.7)
+    ax[0].plot(epochs, train_accuracy, label="Train Accuracy", color="b", linestyle="--", linewidth=2, marker='o', alpha=0.7)
+    if val_accuracy:
+        ax[0].plot(epochs, val_accuracy, label=f"{string} Accuracy", color="g", linestyle=":", linewidth=2, marker='s', alpha=0.7)
     ax[0].set_title("Accuracy")
     ax[0].legend()
     ax[0].set_xlabel("Epoch")
     ax[0].set_ylabel("Accuracy")
     ax[0].grid(True)  # Add a grid for better readability
+    ax[0].set_ylim([0, 1])
 
     # Loss Plot
-    ax[1].plot(epoch, train_loss, label="Train Loss", color="r", linestyle="--", linewidth=2, marker='o', alpha=0.7)
-    ax[1].plot(epoch, val_loss, label=f"{string} Loss", color="m", linestyle=":", linewidth=2, marker='s', alpha=0.7)
+    ax[1].plot(epochs, train_loss, label="Train Loss", color="r", linestyle="--", linewidth=2, marker='o', alpha=0.7)
+    if val_loss:
+        ax[1].plot(epochs, val_loss, label=f"{string} Loss", color="m", linestyle=":", linewidth=2, marker='s', alpha=0.7)
     ax[1].set_title("Loss")
     ax[1].legend()
     ax[1].set_xlabel("Epoch")
     ax[1].set_ylabel("Loss")
     ax[1].grid(True)  # Add a grid for better readability
+    ax[1].set_ylim([0, max(val_loss)+1])
+
     # Adjust layout for better spacing between subplots
     plt.tight_layout()
 
