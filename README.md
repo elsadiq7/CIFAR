@@ -1,9 +1,9 @@
 # CIFAR-10 Image Classification Project
 
-## Introduction
-
+Introduction:
 The CIFAR-10 dataset is a well-known collection of images used for training machine learning models in image classification tasks. Comprising 60,000 32x32 color images across 10 different classes, CIFAR-10 serves as a benchmark for evaluating the performance of various algorithms in computer vision.
 This Python project is designed to provide a comprehensive framework for working with the CIFAR-10 dataset, facilitating both data handling and model training. The project is organized into several components:
+
 ---
 
 <details>
