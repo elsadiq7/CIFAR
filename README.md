@@ -13,7 +13,7 @@ This Python project is designed to provide a comprehensive framework for working
 
 <details>
 
-<summary><strong>1-utlis/download_handle_data.py</strong></summary>
+<summary><strong>download_handle_data.py</strong></summary>
 
 
 This file contains functions for downloading and extracting CIFAR-10 dataset files.
@@ -118,7 +118,7 @@ Executes the full conversion process: loads data, creates directories, and saves
 </details>
 
 <details>
-<summary><strong>2-utlis/load_patchs.py</strong></summary>
+<summary><strong>load_patchs.py</strong></summary>
 
 
 This file defines functions for model creation, training, evaluation, and prediction using TensorFlow/Keras. It includes several deep learning models (custom CNN, MobileNetV2, VGG16), custom F1 score metric, and utilities for training multiple models and predicting using a trained model. 
@@ -199,7 +199,7 @@ Extracts labels and images from the TensorFlow dataset.
 
 <details>
 
-<summary><strong>3-utlis/model_training_testing.py</strong></summary>
+<summary><strong>model_training_testing.py</strong></summary>
 
 
 This file defines functions for model creation, training, evaluation, and prediction using TensorFlow/Keras. It includes several deep learning models (custom CNN, MobileNetV2, VGG16), custom F1 score metric, and utilities for training multiple models and predicting using a trained model. 
@@ -284,7 +284,7 @@ Defines a model based on the pre-trained VGG16. Similar to `model_2`, this uses 
 
 <details>
 
-<summary><strong>4-utlis/plotting.py</strong></summary>
+<summary><strong>plotting.py</strong></summary>
 ## Summary of Functions
 
 1. **show_images(images_patch, labels)**
