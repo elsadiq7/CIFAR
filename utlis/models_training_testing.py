@@ -103,35 +103,8 @@ def predict(prediction_model, test_dataset):
     predictions = np.argmax(prediction_model.predict(images),axis=1)
     model_acc=accuracy_score(predictions,labels)
     model_f1=f1_score(predictions,labels,average='macro')
-    return model_acc, model_f1
+    return model_acc, model_f1,predictions,labels
 
-
-def model_2(image_shape, class_len=10):
-    base_model = MobileNetV2(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
-    base_model.trainable=False
-
-    clf = Sequential([
-        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-        base_model,
-        GlobalAveragePooling2D(),
-        Dense(512, activation='relu'),
-        Dense(class_len, activation='softmax')
-    ])
-
-    return clf
-
-def model_3(image_shape, class_len=10):
-    base_model = VGG16(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
-    base_model.trainable=False
-
-    clf = Sequential([
-        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
-        base_model,
-        GlobalAveragePooling2D(),
-        Dense(class_len, activation='softmax')
-    ])
-
-    return clf
 
 
 
@@ -164,6 +137,37 @@ def model_1():
     model.add(Dense(10, activation='softmax'))
 
     return model
+
+
+def model_2(image_shape, class_len=10):
+    base_model = MobileNetV2(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
+    base_model.trainable=False
+
+    clf = Sequential([
+        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
+        base_model,
+        GlobalAveragePooling2D(),
+        Dense(512, activation='relu'),
+        Dense(class_len, activation='softmax')
+    ])
+
+    return clf
+
+def model_3(image_shape, class_len=10):
+    base_model = VGG16(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
+    base_model.trainable=False
+
+    clf = Sequential([
+        InputLayer(input_shape=image_shape),  # 128x128x3 images with 3 color channels
+        base_model,
+        GlobalAveragePooling2D(),
+        Dense(class_len, activation='softmax')
+    ])
+
+    return clf
+
+
+
 
 
 

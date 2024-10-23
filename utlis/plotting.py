@@ -1,7 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
 
+import tensorflow as tf
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+import os
 classes={0: 'airplane',
  1: 'automobile',
  2: 'bird',
@@ -114,4 +115,62 @@ def plot_accuracy(epoch, history, string="Validation"):
     plt.tight_layout()
 
     # Display the plots
+    plt.show()
+
+
+def plot_combined_confusion_heat_map(y_train_act, y_train_pred, y_test_act, y_test_pred, str6=""):
+    # Confusion matrix for training data
+    clf_matrix_train = confusion_matrix(y_train_act, y_train_pred, normalize='true') * 100
+    clf_matrix_str_train = np.round(clf_matrix_train, 1).astype(str)
+
+    # Confusion matrix for testing data
+    clf_matrix_test = confusion_matrix(y_test_act, y_test_pred, normalize='true') * 100
+    clf_matrix_str_test = np.round(clf_matrix_test, 1).astype(str)
+
+    size = 15
+    plt.rcParams.update({'font.size': size, 'font.family': 'Times New Roman'})
+
+    # Create a figure for both heatmaps with a narrower width
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5), gridspec_kw={'width_ratios': [1, 1], 'wspace': 0.3})
+
+    # Set a common color bar scale by combining both matrices
+    vmin = min(clf_matrix_train.min(), clf_matrix_test.min())
+    vmax = max(clf_matrix_train.max(), clf_matrix_test.max())
+
+    # Plot for training heatmap
+    ax_train = sns.heatmap(clf_matrix_train, annot=clf_matrix_str_train, annot_kws={'weight': "bold"}, fmt='s',
+                           cmap='YlGnBu', vmin=vmin, vmax=vmax, cbar=False, ax=axes[0])
+    ax_train.set_xlabel('Predicted Label', size=size + 2, fontweight='bold')
+    ax_train.set_ylabel('True Label', size=size + 2, fontweight='bold')
+    ax_train.tick_params(axis='both', which='major', labelsize=size + 1)
+    ax_train.set_xticklabels(ax_train.get_xticklabels(), fontweight='bold')
+    ax_train.set_yticklabels(ax_train.get_yticklabels(), fontweight='bold')
+    # Plot for testing heatmap
+    ax_test = sns.heatmap(clf_matrix_test, annot=clf_matrix_str_test, annot_kws={'weight': "bold"}, fmt='s',
+                          cmap='YlGnBu', vmin=vmin, vmax=vmax, cbar=False, ax=axes[1])
+    ax_test.set_xlabel('Predicted Label', size=size + 2, fontweight='bold')
+    ax_test.set_ylabel('True Label', size=size + 2, fontweight='bold')
+    ax_test.tick_params(axis='both', which='major', labelsize=size + 1)
+    # Making tick labels bold
+    ax_test.set_xticklabels(ax_test.get_xticklabels(), fontweight='bold')
+    ax_test.set_yticklabels(ax_test.get_yticklabels(), fontweight='bold')
+    # Add a single color bar for both heatmaps
+    cbar = fig.colorbar(ax_train.collections[0], ax=axes, location='right', pad=0.02, shrink=1)
+    cbar.ax.tick_params(labelsize=size + 1)
+    cbar.set_label('Accuracy(%)', size=size + 1, fontweight='bold')
+    cbar.ax.set_yticklabels(cbar.ax.get_yticklabels(), fontweight='bold')
+
+    # Add subplot labels a and b
+    fig.text(0.26, .9, 'train', fontsize=size + 3, fontweight='bold')  # Label for training heatmap
+    fig.text(0.63, .9, 'test', fontsize=size + 3, fontweight='bold')  # Label for testing heatmap
+    fig.text(0.4, .9, 'Confusion matrix', fontsize=size + 3, fontweight='bold')  # Label for testing heatmap
+
+
+    # Save the figure with high DPI
+    try:
+        os.mkdir("images")
+    except:
+        print("the folder is founded")
+    plt.savefig(f"images/combined_{str6}_heat_map.pdf", format='pdf', bbox_inches='tight', dpi=1024)
+    print(f"images/combined_{str6}_heat_map.pdf")
     plt.show()
