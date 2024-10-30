@@ -360,37 +360,7 @@ A deep convolutional neural network that incorporates several convolutional laye
 - Dropout (50%) 
 - Output (10 classes, Softmax)
 
-```
-def model_1():
-  model = Sequential()
-  model.add(
-      Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
-  model.add(BatchNormalization())
-  model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-  model.add(BatchNormalization())
-  model.add(MaxPool2D((2, 2)))
-  model.add(Dropout(0.2))
-  model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-  model.add(BatchNormalization())
-  model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-  model.add(BatchNormalization())
-  model.add(MaxPool2D((2, 2)))
-  model.add(Dropout(0.3))
-  model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-  model.add(BatchNormalization())
-  model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-  model.add(BatchNormalization())
-  model.add(MaxPool2D((2, 2)))
-  model.add(Dropout(0.4))
-  model.add(Flatten())
-  model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
-  model.add(BatchNormalization())
-  model.add(Dropout(0.5))
-  model.add(Dense(10, activation='softmax'))
 
-  return model
-  
-```
 ---
 
 **Model 2: MobileNetV2**
@@ -406,22 +376,7 @@ A lightweight model that leverages depthwise separable convolutions to minimize 
 
 - Output (10 classes, Softmax)
 
-```
-def model_2(image_shape, class_len=10):
-    base_model = MobileNetV2(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
-    base_model.trainable = False
 
-    clf = Sequential([
-        InputLayer(input_shape=image_shape),  # 32x32x3 images
-        base_model,
-        GlobalAveragePooling2D(),
-        Dense(512, activation='relu'),
-        Dense(class_len, activation='softmax')
-    ])
-
-    return clf
-    
-```
 ---
 
 **Model 3: VGG16**
@@ -434,21 +389,7 @@ architecture:
 - GlobalAveragePooling2D
 - Output (10 classes, Softmax)
 
-```
-def model_3(image_shape, class_len=10):
-    base_model = VGG16(input_shape=(32, 32, 3), include_top=False, weights='imagenet')
-    base_model.trainable = False
 
-    clf = Sequential([
-        InputLayer(input_shape=image_shape),  # 32x32x3 images
-        base_model,
-        GlobalAveragePooling2D(),
-        Dense(class_len, activation='softmax')
-    ])
-
-    return clf
-    
-   ```
 
 </details>
 
