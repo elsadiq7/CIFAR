@@ -403,7 +403,6 @@ architecture:
 2. **`train_test_data`**: Used for training the models, selecting the best-performing one, testing, and generating coverage reports. </details>
 
 
-<details>
 <summary><strong>4. results</strong></summary>
 
 ## Model Performance
@@ -434,7 +433,6 @@ architecture:
 
 For a visual representation, refer to the confusion matrix image: ![here](images/4.png).
 
-</details>
 
 
 
