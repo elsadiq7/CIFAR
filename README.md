@@ -438,8 +438,7 @@ For a visual representation, refer to the confusion matrix image: ![here](images
 
 
 
-<details>
-<summary><strong>5. GUI &deployment on huggingface</strong></summary>
+<strong>5. GUI &deployment on huggingface</strong>
 
 A Gradio GUI provides a user-friendly interface to deploy the model and visualize the output. It displays an interactive histogram showing the percentage distribution of each class and highlights the predicted class. You can try the model on Hugging Face [**here**](https://huggingface.co/spaces/abdulrahman245/CIFAR-10).
 
@@ -452,7 +451,6 @@ A Gradio GUI provides a user-friendly interface to deploy the model and visualiz
 ### 3.Classify a car as automobile (main class of cars)
 ![Classify a car as automobile](images/3.png)
 
-</details>
 
 </details>
 
